@@ -642,26 +642,32 @@
         <h2 class="section-title">Explore The Wilderness</h2>
         <div class="gallery">
             <div class="gallery-item">
+                <img src="https://c8.alamy.com/comp/KRRCNE/ancient-groves-nature-trail-though-old-growth-forest-in-the-sol-duc-KRRCNE.jpg" alt="">
                 <div class="gallery-number">01</div>
                 <div class="gallery-title">Ancient Groves</div>
             </div>
             <div class="gallery-item">
+                <img src="https://wallpapercave.com/wp/wp4505432.jpg" alt="">
                 <div class="gallery-number">02</div>
                 <div class="gallery-title">Cascading Waterfalls</div>
             </div>
             <div class="gallery-item">
+                <img src="https://images.fineartamerica.com/images-medium-large-5/misty-valley-samyaoo.jpg" alt="">
                 <div class="gallery-number">03</div>
                 <div class="gallery-title">Misty Valleys</div>
             </div>
             <div class="gallery-item">
+                <img src="https://th.bing.com/th/id/OIP.Z5_i05KRbNC7IJ_ubXrjqwHaEJ?rs=1&pid=ImgDetMain" alt="">
                 <div class="gallery-number">04</div>
                 <div class="gallery-title">Forest Canopy</div>
             </div>
             <div class="gallery-item">
+                <img src="https://th.bing.com/th/id/OIP.m8BQO8_uO-IgpWzEXp7WJgHaE8?rs=1&pid=ImgDetMain" alt="">
                 <div class="gallery-number">05</div>
                 <div class="gallery-title">Hidden Meadows</div>
             </div>
             <div class="gallery-item">
+                <img src="https://static.vecteezy.com/system/resources/thumbnails/038/093/888/small_2x/ai-generated-a-squirrel-is-sitting-on-a-tree-branch-free-photo.jpg" alt="">
                 <div class="gallery-number">06</div>
                 <div class="gallery-title">Woodland Creatures</div>
             </div>
@@ -677,6 +683,7 @@
             <div class="tree-types">
                 <div class="tree-card">
                     <div class="tree-img">
+                        <img src="https://www.bing.com/th/id/OIP.n6eHk3oEyzUjVbNuIoWOugHaEo?w=247&h=211&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2" alt="">
                         <div class="tree-name">Redwood</div>
                     </div>
                     <div class="tree-info">
@@ -685,6 +692,7 @@
                 </div>
                 <div class="tree-card">
                     <div class="tree-img">
+                        <img src="https://th.bing.com/th/id/OIP.tl2OJN2_cE9UONO3dNj2pAHaE8?rs=1&pid=ImgDetMain" alt="">
                         <div class="tree-name">Oak</div>
                     </div>
                     <div class="tree-info">
@@ -693,6 +701,7 @@
                 </div>
                 <div class="tree-card">
                     <div class="tree-img">
+                        <img src="https://www.thespruce.com/thmb/YM8wL4wWPUeCYll9Wfkc6SVbGO4=/1951x1537/filters:no_upscale():max_bytes(150000):strip_icc()/downy-birch-GettyImages-76011225-58cf1ea15f9b581d72a8a515.jpg" alt="">
                         <div class="tree-name">Birch</div>
                     </div>
                     <div class="tree-info">
