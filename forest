@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enchanted Forest - 3D Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #0a160a;
+            color: #ffffff;
+            overflow-x: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a160a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader h2 {
+            color: #ffffff;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            z-index: 100;
+            transition: background-color 0.3s ease;
+        }
+
+        nav.scrolled {
+            background-color: rgba(10, 22, 10, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            color: #8BC34A;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 800px;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            border: none;
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(140, 195, 74, 0.3);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scroll-indicator .arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid #8BC34A;
+            border-bottom: 2px solid #8BC34A;
+            transform: rotate(45deg);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) rotate(45deg);
+            }
+            40% {
+                transform: translateY(-10px) rotate(45deg);
+            }
+            60% {
+                transform: translateY(-5px) rotate(45deg);
+            }
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5rem 2rem;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .forest-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(140, 195, 74, 0.1);
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(140, 195, 74, 0.3);
+        }
+
+        .info-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: #8BC34A;
+        }
+
+        .info-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #8BC34A;
+        }
+
+        .info-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            height: 250px;
+            background-color: #1a2e1a;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .gallery-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(10, 22, 10, 0) 0%, rgba(10, 22, 10, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .gallery-number {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .gallery-title {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            font-size: 1rem;
+            z-index: 2;
+            text-align: right;
+            max-width: 70%;
+        }
+
+        .interactive-section {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .tree-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tree-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tree-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tree-img {
+            width: 100%;
+            height: 200px;
+            background-color: #1a2e1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #8BC34A;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tree-img::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(10, 22, 10, 0) 50%, rgba(10, 22, 10, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .tree-name {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .tree-info {
+            padding: 1.5rem;
+        }
+
+        .tree-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .activities {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .activity-icon {
+            font-size: 2rem;
+            color: #8BC34A;
+            min-width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(140, 195, 74, 0.1);
+            border-radius: 50%;
+        }
+
+        .activity-content h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .activity-content p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            border-radius: 20px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-section p {
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        footer {
+            width: 100%;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: rgba(10, 22, 10, 0.8);
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: left;
+        }
+
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #8BC34A;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-col ul li a {
+            color: #ffffff;
+            opacity: 0.7;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-col ul li a:hover {
+            opacity: 1;
+            color: #8BC34A;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: #8BC34A;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(140, 195, 74, 0.5);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, opacity 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(76, 175, 80, 0.3);
+            pointer-events: none;
+            z-index: 9998;
+            transition: width 0.1s, height 0.1s, opacity 0.5s;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-section {
+                padding: 2rem;
+            }
+
+            .info-card, .tree-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="loader-content">
+            <h2>Entering the Forest</h2>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-cursor"></div>
+    <div id="cursor-trail-container"></div>
+    
+    <canvas id="webgl"></canvas>
+    
+    <nav id="navbar">
+        <div class="logo">ENCHANTED FOREST</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#explore">Explore</a>
+            <a href="#trees">Trees</a>
+            <a href="#activities">Activities</a>
+        </div>
+    </nav>
+    
+    <section id="home" class="container">
+        <div class="hero">
+            <h1 class="title">The Mystical Forest Experience</h1>
+            <p class="subtitle">Immerse yourself in the tranquility and wonder of ancient forests. Discover the hidden secrets and extraordinary biodiversity that make forests the lungs of our planet.</p>
+            <button class="btn">Begin Your Journey</button>
+        </div>
+        
+        <div class="scroll-indicator">
+            <span>Explore</span>
+            <div class="arrow"></div>
+        </div>
+    </section>
+    
+    <section id="about" class="section">
+        <h2 class="section-title">The Forest Ecosystem</h2>
+        <div class="forest-info">
+            <div class="info-card">
+                <div class="info-icon">🌿</div>
+                <h3 class="info-title">Biodiversity</h3>
+                <p class="info-desc">Forests are home to more than 80% of terrestrial biodiversity, hosting countless species of plants, animals, fungi, and microorganisms that create complex, interconnected webs of life.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">💧</div>
+                <h3 class="info-title">Water Cycle</h3>
+                <p class="info-desc">Forests regulate the water cycle by absorbing rainfall, filtering water, and releasing it slowly into streams and rivers, preventing floods and ensuring clean water supplies.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">🌡️</div>
+                <h3 class="info-title">Climate Regulation</h3>
+                <p class="info-desc">As carbon sinks, forests absorb CO2 from the atmosphere, storing it in trees and soil, while also creating their own microclimates that moderate temperature extremes.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section id="explore" class="section">
+        <h2 class="section-title">Explore The Wilderness</h2>
+        <div class="gallery">
+            <div class="gallery-item">
+                <div class="gallery-number">01</div>
+                <div class="gallery-title">Ancient Groves</div>
+            </div>
+            <div class="gallery-item">
+                <div class="gallery-number">02</div>
+                <div class="gallery-title">Cascading Waterfalls</div>
+            </div>
+            <div class="gallery-item">
+                <div class="gallery-number">03</div>
+                <div class="gallery-title">Misty Valleys</div>
+            </div>
+            <div class="gallery-item">
+                <div class="gallery-number">04</div>
+                <div class="gallery-title">Forest Canopy</div>
+            </div>
+            <div class="gallery-item">
+                <div class="gallery-number">05</div>
+                <div class="gallery-title">Hidden Meadows</div>
+            </div>
+            <div class="gallery-item">
+                <div class="gallery-number">06</div>
+                <div class="gallery-title">Woodland Creatures</div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="trees" class="section">
+        <h2 class="section-title">Magnificent Trees</h2>
+        <div class="interactive-section">
+            <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; line-height: 1.6;">
+                Trees are the foundation of forest ecosystems, providing habitat, food, and countless ecological services. Discover some of the most remarkable tree species found in our forests.
+            </p>
+            <div class="tree-types">
+                <div class="tree-card">
+                    <div class="tree-img">
+                        <div class="tree-name">Redwood</div>
+                    </div>
+                    <div class="tree-info">
+                        <p class="tree-details">The tallest trees on Earth, reaching heights of over 300 feet. These ancient giants can live for more than 2,000 years and create their own ecosystem in the canopy.</p>
+                    </div>
+                </div>
+                <div class="tree-card">
+                    <div class="tree-img">
+                        <div class="tree-name">Oak</div>
+                    </div>
+                    <div class="tree-info">
+                        <p class="tree-details">Known for their strength and longevity, oaks support more life forms than any other native trees, hosting hundreds of insect species that provide food for birds.</p>
+                    </div>
+                </div>
+                <div class="tree-card">
+                    <div class="tree-img">
+                        <div class="tree-name">Birch</div>
+                    </div>
+                    <div class="tree-info">
+                        <p class="tree-details">With their distinctive white bark, birch trees are pioneers that help regenerate forests after disturbances, preparing the soil for other species to follow.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="activities" class="section">
+        <h2 class="section-title">Forest Activities</h2>
+        <div class="activities">
+            <div class="activity-item">
+                <div class="activity-icon">🥾</div>
+                <div class="activity-content">
+                    <h3>Hiking Trails</h3>
+                    <p>Explore miles of scenic trails through diverse forest landscapes, from gentle walks to challenging treks that reveal breathtaking viewpoints.</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🔍</div>
+                <div class="activity-content">
+                    <h3>Wildlife Watching</h3>
+                    <p>Observe the forest's inhabitants in their natural habitat, from elusive mammals to colorful birds and fascinating insects.</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">📷</div>
+                <div class="activity-content">
+                    <h3>Photography</h3>
+                    <p>Capture the ever-changing beauty of the forest through your lens, from enchanting morning mist to the golden light of sunset.</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🧘</div>
+                <div class="activity-content">
+                    <h3>Forest Bathing</h3>
+                    <p>Practice the Japanese art of "shinrin-yoku" - immersing yourself in the forest atmosphere to reduce stress and boost wellbeing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div class="cta-section">
+            <h2>Plan Your Forest Adventure</h2>
+            <p>Ready to experience the magic of the forest? Join our guided tours or explore independently with our interactive maps and resources.</p>
+            <button class="btn">Discover More</button>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>About Us</h3>
+                <ul>
+                    <li><a href="#">Our Mission</a></li>
+                    <li><a href="#">Conservation Efforts</a></li>
+                    <li><a href="#">Team</a></li>
+                    <li><a href="#">Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Explore</h3>
+                <ul>
+                    <li><a href="#">Forest Maps</a></li>
+                    <li><a href="#">Trail Guides</a></li>
+                    <li><a href="#">Flora & Fauna</a></li>
+                    <li><a href="#">Seasonal Events</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Visit</h3>
+                <ul>
+                    <li><a href="#">Plan Your Trip</a></li>
+                    <li><a href="#">Accommodation</a></li>
+                    <li><a href="#">Guided Tours</a></li>
+                    <li><a href="#">Safety Tips</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Connect</h3>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Newsletter</a></li>
+                    <li><a href="#">Support Our Work</a></li>
+                </ul>
+                <div class="social-icons">
+                    <div class="social-icon">
+                        <span>f</span>
+                    </div>
+                    <div class="social-icon">
+                        <span>in</span>
+                    </div>
+                    <div class="social-icon">
+                        <span>ig</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Enchanted Forest. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Loader Animation
+        let progress = 0;
+        const progressBar = document.getElementById('progress');
+        const loader = document.querySelector('.loader');
+        
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress > 100) progress = 100;
+            
+            progressBar.style.width = progress + '%';
+            
+            if (progress === 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 1000);
+                }, 500);
+            }
+        }, 200);
+
+        // Three.js setup
+        gsap.registerPlugin(ScrollTrigger);
+        
+        const canvas = document.getElementById('webgl');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a160a, 0.035);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x0a160a, 1);
+
+        // Create forest particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 3000;
+        
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorsArray = new Float32Array(particlesCount * 3);
+        
+        const colorPalette = [
+            new THREE.Color(0x4CAF50),  // Green
+            new THREE.Color(0x8BC34A),  // Light Green
+            new THREE.Color(0x33691E),  // Dark Green
+            new THREE.Color(0xFFEB3B).multiplyScalar(0.5),  // Muted Yellow (like fireflies)
+        ];
+        
+        for (let i = 0; i < particlesCount * 3; i += 3) {
+            // Position
+            posArray[i] = (Math.random() - 0.5) * 50;
+            posArray[i + 1] = (Math.random() - 0.5) * 50;
+            posArray[i + 2] = (Math.random() - 0.5) * 50;
+            
+            // Color
+            const colorIdx = Math.floor(Math.random() * colorPalette.length);
+            const color = colorPalette[colorIdx];
+            colorsArray[i] = color.r;
+            colorsArray[i + 1] = color.g;
+            colorsArray[i + 2] = color.b;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+        
+        // Materials
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            transparent: true,
+            opacity: 0.8,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true
+        });
+        
+        // Particles
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        // Create stylized trees
+        function createTree(x, z, height) {
+            const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, height, 8);
+            const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x3E2723 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            
+            const leavesGeometry = new THREE.ConeGeometry(height/2, height*1.2, 8);
+            const leavesMaterial = new THREE.MeshBasicMaterial({ 
+                color: new THREE.Color(0x2E7D32).multiplyScalar(0.7 + Math.random() * 0.6),
+                wireframe: true
+            });
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+            leaves.position.y = height * 0.7;
+            
+            const tree = new THREE.Group();
+            tree.add(trunk);
+            tree.add(leaves);
+            
+            tree.position.set(x, 0, z);
+            scene.add(tree);
+            
+            return tree;
+        }
+        
+        // Create a forest
+        const trees = [];
+        for (let i = 0; i < 100; i++) {
+            const x = (Math.random() - 0.5) * 100;
+            const z = (Math.random() - 0.5) * 100;
+            const height = 2 + Math.random() * 5;
+            const tree = createTree(x, z, height);
+            trees.push(tree);
+        }
+        
+        // Add ground plane with wireframe
+        const groundGeometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+        const groundMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x1B5E20, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -2;
+        scene.add(ground);
+
+        // Position camera
+        camera.position.z = 15;
+        camera.position.y = 5;
+        
+        // Mouse position for interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+        
+        // Scroll position
+        let scrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+        });
+        
+        // Animation
+        const clock = new THREE.Clock();
+        
+        const animate = () => {
+            requestAnimationFrame(animate);
+            
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Rotate particles
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            
+            // Make trees sway slightly
+            trees.forEach((tree, i) => {
+                tree.rotation.z = Math.sin(elapsedTime * 0.5 + i) * 0.02;
+                tree.rotation.x = Math.cos(elapsedTime * 0.3 + i) * 0.01;
+            });
+            
+            // Camera movement based on scroll
+            camera.position.y = 5 + scrollY * 0.01;
+            camera.rotation.x = -scrollY * 0.0003;
+            
+            // Interactive movement based on mouse position
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.01;
+            camera.position.z += ((-mouseY * 2 + 15) - camera.position.z) * 0.01;
+            camera.lookAt(0, 0, 0);
+            
+            // Update particles
+            for (let i = 0; i < particlesCount * 3; i += 3) {
+                const i3 = i / 3;
+                // Make some particles (fireflies) move up and down
+                if (i3 % 20 === 0) {
+                    particlesGeometry.attributes.position.array[i + 1] += Math.sin(elapsedTime + i3) * 0.01;
+                    particlesGeometry.attributes.position.needsUpdate = true;
+                }
+            }
+            
+            renderer.render(scene, camera);
+        };
+        
+        animate();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Custom cursor
+        const cursor = document.querySelector('.custom-cursor');
+        const cursorTrailContainer = document.getElementById('cursor-trail-container');
+        const cursorTrails = [];
+        const maxTrails = 10;
+        
+        for (let i = 0; i < maxTrails; i++) {
+            const trail = document.createElement('div');
+            trail.classList.add('cursor-trail');
+            cursorTrailContainer.appendChild(trail);
+            cursorTrails.push({
+                element: trail,
+                x: 0,
+                y: 0,
+                alpha: 0
+            });
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, {
+                duration: 0.2,
+                left: e.clientX,
+                top: e.clientY
+            });
+            
+            // Update trails
+            for (let i = cursorTrails.length - 1; i > 0; i--) {
+                cursorTrails[i].x = cursorTrails[i-1].x;
+                cursorTrails[i].y = cursorTrails[i-1].y;
+                cursorTrails[i].alpha = 1 - (i / cursorTrails.length);
+                
+                gsap.set(cursorTrails[i].element, {
+                    left: cursorTrails[i].x,
+                    top: cursorTrails[i].y,
+                    opacity: cursorTrails[i].alpha
+                });
+            }
+            
+            cursorTrails[0].x = e.clientX;
+            cursorTrails[0].y = e.clientY;
+            gsap.set(cursorTrails[0].element, {
+                left: cursorTrails[0].x,
+                top: cursorTrails[0].y,
+                opacity: 1
+            });
+        });
+        
+        // Cursor hover effect
+        const interactiveElements = document.querySelectorAll('a, button, .tree-card, .gallery-item, .info-card, .activity-item');
+        
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                gsap.to(cursor, {
+                    width: 40,
+                    height: 40,
+                    opacity: 0.6,
+                    duration: 0.3
+                });
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                gsap.to(cursor, {
+                    width: 20,
+                    height: 20,
+                    opacity: 0.5,
+                    duration: 0.3
+                });
+            });
+        });
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetElement.offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // GSAP Animations
+        
+        // Hero animations
+        gsap.from('.title', {
+            duration: 1.5,
+            y: 100,
+            opacity: 0,
+            ease: 'power3.out',
+            delay: 2.5
+        });
+        
+        gsap.from('.subtitle', {
+            duration: 1.5,
+            y: 50,
+            opacity: 0,
+            ease: 'power3.out',
+            delay: 2.8
+        });
+        
+        gsap.from('.btn', {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            ease: 'power3.out',
+            delay: 3.1
+        });
+        
+        gsap.from('.scroll-indicator', {
+            duration: 1,
+            opacity: 0,
+            ease: 'power3.out',
+            delay: 3.5
+        });
+        
+        gsap.from('nav', {
+            duration: 1.5,
+            y: -100,
+            opacity: 0,
+            ease: 'power3.out',
+            delay: 2.5
+        });
+        
+        // Scroll animations
+        const sections = document.querySelectorAll('.section-title');
+        
+        sections.forEach(section => {
+            gsap.from(section, {
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+        });
+        
+        const cards = document.querySelectorAll('.info-card, .tree-card, .gallery-item, .activity-item');
+        
+        cards.forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                delay: index * 0.1,
+                ease: 'power3.out'
+            });
+        });
+        
+        // Journey button
+        document.querySelector('.btn').addEventListener('click', () => {
+            document.querySelector('#about').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    </script>
